@@ -8,39 +8,30 @@ import {
 } from '../hooks/useSettings';
 
 import type { Store } from '../types/settings.types';
-
-import type {
-  StoreFormValues,
-} from '../schemas/store.schema';
+import type { StoreFormValues } from '../schemas/store.schema';
 
 import { StoreForm } from './StoreForm';
 
 export function StoresManager() {
-  const [selectedStore, setSelectedStore] =
-    useState<Store | null>(null);
-
-  const [isFormOpen, setIsFormOpen] =
-    useState(false);
-
-  const [showInactive, setShowInactive] =
-    useState(false);
+  const [selectedStore, setSelectedStore] = useState<Store | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [showInactive, setShowInactive] = useState(false);
 
   const {
     data: stores = [],
     isLoading,
     isFetching,
-  } = useStores(showInactive);
+  } = useStores();
 
   const createStore = useCreateStore();
-
   const updateStore = useUpdateStore();
-
   const deleteStore = useDeleteStore();
 
-  const isEditing = useMemo(
-    () => Boolean(selectedStore),
-    [selectedStore],
-  );
+  const isEditing = useMemo(() => Boolean(selectedStore), [selectedStore]);
+
+  const visibleStores = useMemo(() => {
+    return showInactive ? stores : stores.filter((store) => store.isActive);
+  }, [stores, showInactive]);
 
   function handleCreate() {
     setSelectedStore(null);
@@ -52,25 +43,18 @@ export function StoresManager() {
     setIsFormOpen(true);
   }
 
-  async function handleDelete(
-    store: Store,
-  ) {
-    const confirmed = window.confirm(
-      `¿Eliminar la sucursal "${store.name}"?`,
-    );
-
+  async function handleDelete(store: Store) {
+    const confirmed = window.confirm(`¿Eliminar la sucursal "${store.name}"?`);
     if (!confirmed) return;
 
     await deleteStore.mutateAsync(store.id);
   }
 
-  async function handleSubmit(
-    values: StoreFormValues,
-  ) {
+  async function handleSubmit(values: StoreFormValues) {
     if (selectedStore) {
       await updateStore.mutateAsync({
         id: selectedStore.id,
-        payload: values,
+        data: values,
       });
     } else {
       await createStore.mutateAsync(values);
@@ -89,13 +73,8 @@ export function StoresManager() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">
-            Sucursales
-          </h2>
-
-          <p className="text-sm text-gray-500">
-            Administración de tiendas y puntos de venta
-          </p>
+          <h2 className="text-xl font-semibold text-gray-900">Sucursales</h2>
+          <p className="text-sm text-gray-500">Administración de tiendas y puntos de venta</p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -103,14 +82,9 @@ export function StoresManager() {
             <input
               type="checkbox"
               checked={showInactive}
-              onChange={(e) =>
-                setShowInactive(
-                  e.target.checked,
-                )
-              }
+              onChange={(e) => setShowInactive(e.target.checked)}
               className="h-4 w-4 rounded border-gray-300"
             />
-
             Mostrar inactivas
           </label>
 
@@ -127,11 +101,10 @@ export function StoresManager() {
         <div className="border-b border-gray-200 px-4 py-3 text-sm text-gray-500">
           {isLoading || isFetching
             ? 'Cargando sucursales...'
-            : `${stores.length} sucursales encontradas`}
+            : `${visibleStores.length} sucursales encontradas`}
         </div>
 
-        {stores.length === 0 &&
-        !isLoading ? (
+        {visibleStores.length === 0 && !isLoading ? (
           <div className="px-4 py-10 text-center text-sm text-gray-500">
             No hay sucursales registradas.
           </div>
@@ -139,27 +112,22 @@ export function StoresManager() {
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <tbody className="divide-y divide-gray-200 bg-white">
-                {stores.map((store) => (
-                  <tr
-                    key={store.id}
-                  >
+                {visibleStores.map((store) => (
+                  <tr key={store.id}>
                     <td className="px-4 py-3 text-sm font-medium text-gray-900">
                       {store.name}
                     </td>
 
                     <td className="px-4 py-3 text-sm text-gray-600">
-                      {store.address ||
-                        '-'}
+                      {store.address || '-'}
                     </td>
 
                     <td className="px-4 py-3 text-sm text-gray-600">
-                      {store.phone ||
-                        '-'}
+                      {store.phone || '-'}
                     </td>
 
                     <td className="px-4 py-3 text-sm text-gray-600">
-                      {store.email ||
-                        '-'}
+                      {store.email || '-'}
                     </td>
 
                     <td className="px-4 py-3 text-sm">
@@ -170,31 +138,21 @@ export function StoresManager() {
                             : 'bg-red-100 text-red-700'
                         }`}
                       >
-                        {store.isActive
-                          ? 'Activa'
-                          : 'Inactiva'}
+                        {store.isActive ? 'Activa' : 'Inactiva'}
                       </span>
                     </td>
 
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-2">
                         <button
-                          onClick={() =>
-                            handleEdit(
-                              store,
-                            )
-                          }
+                          onClick={() => handleEdit(store)}
                           className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
                         >
                           Editar
                         </button>
 
                         <button
-                          onClick={() =>
-                            handleDelete(
-                              store,
-                            )
-                          }
+                          onClick={() => handleDelete(store)}
                           className="rounded-lg border border-red-300 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50"
                         >
                           Eliminar
@@ -213,17 +171,9 @@ export function StoresManager() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-xl">
             <StoreForm
-              initialData={
-                selectedStore ??
-                undefined
-              }
-              isLoading={
-                createStore.isPending ||
-                updateStore.isPending
-              }
-              onSubmit={
-                handleSubmit
-              }
+              initialData={selectedStore ?? undefined}
+              isLoading={createStore.isPending || updateStore.isPending}
+              onSubmit={handleSubmit}
             />
           </div>
         </div>

@@ -1,164 +1,53 @@
-import {
-  Minus,
-  Plus,
-  Trash2,
-} from 'lucide-react';
-
-import { formatCurrency } from '../../../lib/utils';
-
-import type { POSCartItem } from '../types/pos.types';
+import { Minus, Plus, Trash2 } from 'lucide-react';
+import type { CartItem } from '../../sales/types/sales.types';
 
 interface Props {
-  item: POSCartItem;
-
-  onIncrease: (
-    variantId: string,
-  ) => void;
-
-  onDecrease: (
-    variantId: string,
-  ) => void;
-
-  onRemove: (
-    variantId: string,
-  ) => void;
-
-  onPriceChange?: (
-    variantId: string,
-    price: number,
-  ) => void;
-
-  onDiscountChange?: (
-    variantId: string,
-    discountAmount: number,
-  ) => void;
+  item: CartItem;
+  onUpdateQuantity: (variantId: string, quantity: number) => void;
+  onRemove: (variantId: string) => void;
 }
 
-export function POSCartItemRow({
-  item,
-
-  onIncrease,
-  onDecrease,
-  onRemove,
-
-  onPriceChange,
-  onDiscountChange,
-}: Props) {
+export function CartItemRow({ item, onUpdateQuantity, onRemove }: Props) {
   return (
-    <div className="rounded-xl border bg-white p-3 space-y-3">
-      {/* HEADER */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="truncate text-sm font-medium text-gray-900">
-            {item.productName}
-          </p>
+    <div className="flex items-center gap-3 border-b py-3 last:border-0">
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-medium text-gray-900">{item.productName}</p>
+        <p className="text-xs text-gray-500">
+          SKU: {item.sku}
+          {item.size && ` · ${item.size}`}
+          {item.color && ` · ${item.color}`}
+        </p>
+        <p className="text-xs font-medium text-indigo-600">${item.unitPrice.toFixed(2)} c/u</p>
+      </div>
 
-          <div className="mt-1 flex flex-wrap gap-2 text-xs text-gray-500">
-            {item.sku && (
-              <span>
-                SKU: {item.sku}
-              </span>
-            )}
+      <div className="flex items-center gap-1">
+        <button
+          onClick={() => onUpdateQuantity(item.variantId, item.quantity - 1)}
+          className="flex h-6 w-6 items-center justify-center rounded-full border hover:bg-gray-100 disabled:opacity-40"
+          disabled={item.quantity <= 1}
+        >
+          <Minus className="h-3 w-3" />
+        </button>
 
-            <span>
-              Cantidad: {item.quantity}
-            </span>
-          </div>
-        </div>
+        <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
 
         <button
-          onClick={() =>
-            onRemove(item.variantId)
-          }
-          className="rounded-lg p-1 text-red-500 hover:bg-red-50"
+          onClick={() => onUpdateQuantity(item.variantId, item.quantity + 1)}
+          className="flex h-6 w-6 items-center justify-center rounded-full border hover:bg-gray-100 disabled:opacity-40"
+          disabled={item.quantity >= item.stock}
+          title={item.quantity >= item.stock ? 'Sin stock disponible' : 'Agregar unidad'}
         >
-          <Trash2 className="h-4 w-4" />
+          <Plus className="h-3 w-3" />
         </button>
       </div>
 
-      {/* PRICE / DISCOUNT */}
-      <div className="grid grid-cols-2 gap-3">
-        {/* PRICE */}
-        <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">
-            Precio
-          </label>
-
-          <input
-            type="number"
-            min={0}
-            step="0.01"
-            value={item.unitPrice}
-            onChange={(e) =>
-              onPriceChange?.(
-                item.variantId,
-                Number(e.target.value),
-              )
-            }
-            className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        {/* DISCOUNT */}
-        <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">
-            Descuento
-          </label>
-
-          <input
-            type="number"
-            min={0}
-            step="0.01"
-            value={item.discountAmount }
-            onChange={(e) =>
-              onDiscountChange?.(
-                item.variantId,
-                Number(e.target.value),
-              )
-            }
-            className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+      <div className="min-w-[70px] text-right">
+        <p className="text-sm font-semibold">${item.subtotal.toFixed(2)}</p>
       </div>
 
-      {/* FOOTER */}
-      <div className="flex items-center justify-between">
-        {/* QUANTITY */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() =>
-              onDecrease(item.variantId)
-            }
-            className="flex h-8 w-8 items-center justify-center rounded-lg border hover:bg-gray-50"
-          >
-            <Minus className="h-4 w-4" />
-          </button>
-
-          <span className="min-w-[28px] text-center text-sm font-medium">
-            {item.quantity}
-          </span>
-
-          <button
-            onClick={() =>
-              onIncrease(item.variantId)
-            }
-            className="flex h-8 w-8 items-center justify-center rounded-lg border hover:bg-gray-50"
-          >
-            <Plus className="h-4 w-4" />
-          </button>
-        </div>
-
-        {/* TOTAL */}
-        <div className="text-right">
-          <p className="text-xs text-gray-500">
-            Subtotal
-          </p>
-
-          <p className="text-sm font-semibold text-gray-900">
-            {formatCurrency(item.total)}
-          </p>
-        </div>
-      </div>
+      <button onClick={() => onRemove(item.variantId)} className="text-red-400 hover:text-red-600">
+        <Trash2 className="h-4 w-4" />
+      </button>
     </div>
   );
 }

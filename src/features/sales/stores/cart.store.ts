@@ -1,16 +1,5 @@
 import { create } from 'zustand';
-
-export interface CartItem {
-  variantId: string;
-  productName: string;
-  sku: string;
-  size?: string;
-  color?: string;
-  price: number;
-  quantity: number;
-  discountAmount: number;
-  subtotal: number;
-}
+import type { CartItem } from '../types/sales.types';
 
 interface CartStore {
   items: CartItem[];
@@ -35,26 +24,34 @@ export const useCartStore = create<CartStore>((set, get) => ({
     set((state) => {
       const existing = state.items.find((i) => i.variantId === item.variantId);
 
-      let items: CartItem[];
+      let items: CartItem[] = [];
 
       if (existing) {
-        items = state.items.map((i) =>
-          i.variantId === item.variantId
-            ? {
-                ...i,
-                quantity: i.quantity + 1,
-                subtotal: (i.quantity + 1) * i.price - i.discountAmount,
-              }
-            : i,
-        );
+        items = state.items.map((i) => {
+          if (i.variantId !== item.variantId) return i;
+
+          const nextQuantity = Math.min(i.quantity + 1, i.stock);
+
+          return {
+            ...i,
+            quantity: nextQuantity,
+            subtotal: nextQuantity * i.unitPrice - i.discountAmount,
+          };
+        });
       } else {
+        const quantity = item.stock > 0 ? 1 : 0;
+
+        if (quantity === 0) {
+          return state;
+        }
+
         items = [
           ...state.items,
           {
             ...item,
-            quantity: 1,
+            quantity,
             discountAmount: 0,
-            subtotal: item.price,
+            subtotal: item.unitPrice * quantity,
           },
         ];
       }
@@ -83,15 +80,17 @@ export const useCartStore = create<CartStore>((set, get) => ({
         return { items, total, itemCount };
       }
 
-      const items = state.items.map((i) =>
-        i.variantId === variantId
-          ? {
-              ...i,
-              quantity,
-              subtotal: quantity * i.price - i.discountAmount,
-            }
-          : i,
-      );
+      const items = state.items.map((i) => {
+        if (i.variantId !== variantId) return i;
+
+        const nextQuantity = Math.min(quantity, i.stock);
+
+        return {
+          ...i,
+          quantity: nextQuantity,
+          subtotal: nextQuantity * i.unitPrice - i.discountAmount,
+        };
+      });
 
       const total = items.reduce((sum, i) => sum + i.subtotal, 0);
       const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);

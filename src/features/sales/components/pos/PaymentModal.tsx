@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { CreditCard, Banknote, Smartphone } from 'lucide-react';
 import { useCartStore } from '../../stores/cart.store';
 import { useCreateSale } from '../../hooks/useSales';
@@ -31,21 +30,26 @@ export function PaymentModal({ isOpen, customerId, storeId, onClose, onSuccess }
 
   if (!isOpen) return null;
 
-  const handleConfirm = async () => {
-    try {
-      await createSale.mutateAsync({
-        storeId,
-        customerId: customerId ?? undefined,
-        items: items.map(i => ({ productVariantId: i.variantId, quantity: i.quantity, unitPrice: i.unitPrice })),
-        payments: [{ method: paymentMethod, amount: total }],
-      });
-      clearCart();
-      toast.success('Venta registrada exitosamente');
-      onSuccess();
-    } catch {
-      toast.error('Error al procesar la venta');
-    }
-  };
+const handleConfirm = async () => {
+  try {
+    await createSale.mutateAsync({
+      storeId,
+      customerId: customerId ?? undefined,
+      items: items.map(i => ({
+        variantId: i.variantId,
+        quantity: i.quantity,
+        unitPrice: i.unitPrice,
+        discount: i.discountAmount,
+      })),
+      payments: [{ method: paymentMethod, amount: total }],
+    });
+    clearCart();
+    toast.success('Venta registrada exitosamente');
+    onSuccess();
+  } catch {
+    toast.error('Error al procesar la venta');
+  }
+};
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">

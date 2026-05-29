@@ -28,10 +28,11 @@ export function CartItemRow({ item, onUpdateQuantity, onRemove }: Props) {
           <Minus className="h-3 w-3" />
         </button>
         <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
-        <button
+           <button
           onClick={() => onUpdateQuantity(item.variantId, item.quantity + 1)}
           className="h-6 w-6 rounded-full border flex items-center justify-center hover:bg-gray-100 disabled:opacity-40"
           disabled={item.quantity >= item.stock}
+          title={item.quantity >= item.stock ? 'Sin stock disponible' : 'Agregar unidad'}
         >
           <Plus className="h-3 w-3" />
         </button>

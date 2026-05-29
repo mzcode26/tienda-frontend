@@ -1,1 +1,0 @@
-import{j as s}from"./index-D1xRUqv7.js";const t=()=>s.jsxs("div",{className:"rounded-3xl border border-slate-800 bg-slate-900/90 p-8 shadow-xl shadow-slate-950/20",children:[s.jsx("h1",{className:"text-3xl font-semibold text-white",children:"Products"}),s.jsx("p",{className:"mt-3 text-slate-400",children:"This is the products management page."})]});export{t as default};

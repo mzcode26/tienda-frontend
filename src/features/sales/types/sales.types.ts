@@ -1,6 +1,13 @@
 export type SaleStatus = 'PENDING' | 'COMPLETED' | 'CANCELLED' | 'REFUNDED';
 
-export type SalePaymentMethod = 'CASH' | 'CARD' | 'TRANSFER' | 'OTHER'| 'CARD_DEBIT' | 'CARD_CREDIT' | 'QR' ;
+export type SalePaymentMethod =
+  | 'CASH'
+  | 'CARD'
+  | 'TRANSFER'
+  | 'OTHER'
+  | 'CARD_DEBIT'
+  | 'CARD_CREDIT'
+  | 'QR';
 
 export type PaymentStatus = 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED';
 
@@ -137,9 +144,10 @@ export interface CartItem {
   productName: string;
   size?: string;
   color?: string;
-  price: number;
+  unitPrice: number;
+  stock: number;
   quantity: number;
-  discount: number;
+  discountAmount: number;
   subtotal: number;
 }
 
@@ -149,7 +157,7 @@ export interface POSProduct {
   productName: string;
   size?: string;
   color?: string;
-  price: number;
+  unitPrice: number;
   stock: number;
   imageUrl?: string;
 }

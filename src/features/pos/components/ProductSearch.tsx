@@ -4,55 +4,36 @@ import api from '../../../lib/axios';
 import type { POSProduct } from '../../sales/types/sales.types';
 
 interface Props {
-  storeId: string;
   onSelect: (variant: POSProduct) => void;
 }
 
-function unwrapProducts(payload: unknown): POSProduct[] {
-  if (Array.isArray(payload)) return payload as POSProduct[];
-  if (payload && typeof payload === 'object') {
-    const p = payload as { items?: POSProduct[]; data?: { items?: POSProduct[]; data?: POSProduct[] } };
-    if (Array.isArray(p.items)) return p.items;
-    if (Array.isArray(p.data?.items)) return p.data.items;
-    if (Array.isArray(p.data?.data)) return p.data.data;
-  }
-  return [];
-}
-
-export function ProductSearch({ storeId, onSelect }: Props) {
+export function ProductSearch({ onSelect }: Props) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<POSProduct[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const q = query.trim();
-
-    if (q.length < 2 || !storeId) {
+    if (query.trim().length < 2) {
       setResults([]);
       return;
     }
 
-    const timer = window.setTimeout(async () => {
+    const timer = setTimeout(async () => {
       setIsLoading(true);
       try {
-        console.log('BUSCANDO POS =>', { q, storeId });
-
-        const { data } = await api.get('/pos/search', {
-          params: { q, storeId },
-        });
-
-        console.log('RESPUESTA POS =>', data);
-        setResults(unwrapProducts(data?.data));
-      } catch (error) {
-        console.error('Error buscando productos POS', error);
+        const response = await api.get('/pos/search', { params: { q: query } });
+        const payload = response.data;
+        const list = Array.isArray(payload) ? payload : payload?.data ?? [];
+        setResults(list);
+      } catch {
         setResults([]);
       } finally {
         setIsLoading(false);
       }
     }, 300);
 
-    return () => window.clearTimeout(timer);
-  }, [query, storeId]);
+    return () => clearTimeout(timer);
+  }, [query]);
 
   return (
     <div className="relative">
@@ -61,19 +42,13 @@ export function ProductSearch({ storeId, onSelect }: Props) {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Buscar producto... (F2)"
-          className="w-full pl-9 pr-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          placeholder="Buscar por nombre, SKU o código..."
+          className="w-full rounded-lg border px-3 py-2.5 pl-9 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
       </div>
 
-      {isLoading && (
-        <div className="absolute z-10 w-full mt-1 bg-white border rounded-lg shadow-lg p-3 text-center text-sm text-gray-400">
-          Buscando...
-        </div>
-      )}
-
       {results.length > 0 && (
-        <div className="absolute z-10 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-64 overflow-y-auto">
+        <div className="absolute z-10 mt-1 max-h-64 w-full overflow-y-auto rounded-lg border bg-white shadow-lg">
           {results.map((variant) => (
             <button
               key={variant.variantId}
@@ -82,7 +57,7 @@ export function ProductSearch({ storeId, onSelect }: Props) {
                 setQuery('');
                 setResults([]);
               }}
-              className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 text-left border-b last:border-0"
+              className="flex w-full items-center justify-between border-b px-4 py-3 text-left last:border-0 hover:bg-gray-50"
             >
               <div>
                 <p className="text-sm font-medium text-gray-900">{variant.productName}</p>
@@ -92,14 +67,23 @@ export function ProductSearch({ storeId, onSelect }: Props) {
                   {variant.color && ` · Color: ${variant.color}`}
                 </p>
               </div>
+
               <div className="text-right">
-                <p className="text-sm font-semibold text-indigo-600">${variant.price.toFixed(2)}</p>
+                <p className="text-sm font-semibold text-indigo-600">
+                  ${variant.unitPrice.toFixed(2)}
+                </p>
                 <p className={`text-xs ${variant.stock <= 0 ? 'text-red-500' : 'text-gray-400'}`}>
                   Stock: {variant.stock}
                 </p>
               </div>
             </button>
           ))}
+        </div>
+      )}
+
+      {isLoading && (
+        <div className="absolute z-10 mt-1 w-full rounded-lg border bg-white p-3 text-center text-sm text-gray-400 shadow-lg">
+          Buscando...
         </div>
       )}
     </div>

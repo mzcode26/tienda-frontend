@@ -1,123 +1,78 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { ProductSearch } from '../components/pos/ProductSearch';
+import { Cart } from '../components/pos/Cart';
 import { useCartStore } from '../stores/cart.store';
-import { usePOSSearch, useCreateSale } from '../hooks/useSales';
-import { formatCurrency } from '../../../lib/utils';
 import type { POSProduct } from '../types/sales.types';
-import { toast } from 'sonner';
+import { useStores } from '../../settings/hooks/useSettings';
 
 export default function POSPage() {
-  const [query, setQuery] = useState('');
-  const [storeId] = useState('default-store-id'); // replace with real store selector
-  const searchRef = useRef<HTMLInputElement>(null);
-  const { data: results } = usePOSSearch(query, storeId);
-  const cart = useCartStore();
-  const createSale = useCreateSale();
+  const { data: stores = [], isLoading: storesLoading } = useStores();
+  const [selectedStoreId, setSelectedStoreId] = useState<string>('');
+  const addItem = useCartStore((state) => state.addItem);
 
-  // F2 focuses search
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'F2') searchRef.current?.focus();
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, []);
+    if (!selectedStoreId && stores.length > 0) {
+      setSelectedStoreId(stores[0].id);
+    }
+  }, [stores, selectedStoreId]);
 
-  const handleCheckout = () => {
-    if (!cart.items.length) return;
-    createSale.mutate({
-      storeId,
-      customerId: cart.customerId,
-      items: cart.items.map(i => ({
-        variantId: i.variantId,
-        quantity: i.quantity,
-        unitPrice: i.price,
-        discount: i.discount,
-      })),
-      payments: [{ method: 'CASH', amount: cart.total }],
-    }, {
-      onSuccess: () => {
-        toast.success('Venta registrada exitosamente');
-        cart.clearCart();
-        setQuery('');
-      },
-      onError: () => toast.error('Error al registrar la venta'),
+  const selectedStore = useMemo(
+    () => stores.find((store) => store.id === selectedStoreId) ?? null,
+    [stores, selectedStoreId]
+  );
+
+  const handleSelectProduct = (product: POSProduct) => {
+    addItem({
+      variantId: product.variantId,
+      sku: product.sku,
+      productName: product.productName,
+      size: product.size,
+      color: product.color,
+      unitPrice: product.unitPrice,
+      stock: product.stock,
     });
   };
 
   return (
-    <div className="flex h-[calc(100vh-64px)]">
-      {/* Left: Product Search */}
-      <div className="flex-1 p-4 border-r overflow-y-auto">
-        <input
-          ref={searchRef}
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-          placeholder="🔍 Buscar producto... (F2)"
-          className="w-full border rounded-lg px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {(results?.data as POSProduct[] ?? []).map(product => (
-            <button key={product.variantId}
-              onClick={() => cart.addItem(product)}
-              className="border rounded-lg p-3 text-left hover:border-blue-500 hover:bg-blue-50 transition">
-              <div className="font-medium text-sm truncate">{product.productName}</div>
-              <div className="text-xs text-gray-500">{product.sku}</div>
-              {product.size && <div className="text-xs text-gray-400">Talle: {product.size}</div>}
-              <div className="mt-1 font-bold text-blue-600">{formatCurrency(product.price)}</div>
-              <div className="text-xs text-gray-400">Stock: {product.stock}</div>
-            </button>
-          ))}
-          {query.length > 1 && !results?.data?.length && (
-            <div className="col-span-3 text-center text-gray-400 py-8">Sin resultados</div>
-          )}
+    <div className="grid h-[calc(100vh-120px)] grid-cols-1 gap-4 lg:grid-cols-[1.4fr_0.9fr]">
+      <div className="flex min-h-0 flex-col gap-4">
+        <div className="rounded-xl border bg-white p-4">
+          <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h1 className="text-xl font-semibold text-gray-900">Punto de Venta</h1>
+              <p className="text-sm text-gray-500">Busca productos, agrégalos al carrito y cobra.</p>
+            </div>
+
+            <div className="min-w-[240px]">
+              <label className="mb-1 block text-sm font-medium text-gray-700">Sucursal</label>
+              <select
+                value={selectedStoreId}
+                onChange={(e) => setSelectedStoreId(e.target.value)}
+                className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                disabled={storesLoading}
+              >
+                <option value="">Seleccionar sucursal</option>
+                {stores.map((store) => (
+                  <option key={store.id} value={store.id}>
+                    {store.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <ProductSearch onSelect={handleSelectProduct} />
         </div>
+
+        {!selectedStore && !storesLoading && (
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+            No hay sucursales disponibles o aún no seleccionaste una.
+          </div>
+        )}
       </div>
 
-      {/* Right: Cart */}
-      <div className="w-96 flex flex-col bg-gray-50">
-        <div className="p-4 border-b font-semibold text-gray-700">
-          🛒 Carrito ({cart.itemCount} items)
-        </div>
-        <div className="flex-1 overflow-y-auto p-4 space-y-2">
-          {cart.items.length === 0 && (
-            <div className="text-center text-gray-400 py-12">Carrito vacío</div>
-          )}
-          {cart.items.map(item => (
-            <div key={item.variantId} className="bg-white rounded-lg p-3 shadow-sm">
-              <div className="flex justify-between items-start">
-                <div>
-                  <div className="font-medium text-sm">{item.productName}</div>
-                  <div className="text-xs text-gray-500">{item.sku} {item.size && `· ${item.size}`}</div>
-                </div>
-                <button onClick={() => cart.removeItem(item.variantId)}
-                  className="text-red-400 hover:text-red-600 text-xs">✕</button>
-              </div>
-              <div className="flex items-center gap-2 mt-2">
-                <button onClick={() => cart.updateQuantity(item.variantId, item.quantity - 1)}
-                  className="w-6 h-6 rounded border text-sm">-</button>
-                <span className="text-sm font-medium">{item.quantity}</span>
-                <button onClick={() => cart.updateQuantity(item.variantId, item.quantity + 1)}
-                  className="w-6 h-6 rounded border text-sm">+</button>
-                <span className="ml-auto font-medium text-sm">{formatCurrency(item.subtotal)}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-        {/* Cart Summary */}
-        <div className="p-4 border-t bg-white space-y-2">
-          <div className="flex justify-between text-sm text-gray-600">
-            <span>Subtotal</span><span>{formatCurrency(cart.subtotal)}</span>
-          </div>
-          <div className="flex justify-between font-bold text-lg">
-            <span>Total</span><span className="text-blue-600">{formatCurrency(cart.total)}</span>
-          </div>
-          <button
-            onClick={handleCheckout}
-            disabled={!cart.items.length || createSale.isPending}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition">
-            {createSale.isPending ? 'Procesando...' : `Cobrar ${formatCurrency(cart.total)}`}
-          </button>
-        </div>
+      <div className="min-h-0">
+        <Cart storeId={selectedStoreId} />
       </div>
     </div>
   );
