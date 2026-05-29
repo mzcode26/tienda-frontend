@@ -9,7 +9,7 @@ import { StoreSelector } from '../../../shared/StoreSelector';
 
 import { POSCart } from '../components/POSCart';
 import { POSItemModal } from '../components/POSItemModal';
-import { PaymentModal } from '../components/POSPaymentModal';
+import { POSPaymentModal } from '../components/POSPaymentModal';
 import { POSCustomerModal } from '../components/POSCustomerModal';
 
 import { usePOSCartStore } from '../stores/pos-cart.store';
@@ -319,13 +319,18 @@ export default function POSPage() {
       />
 
       {/* PAYMENT */}
-      <PaymentModal
+      <POSPaymentModal
         isOpen={paymentOpen}
-        customerId={customer?.id ?? null}
-        storeId={selectedStoreId}
-        onClose={() => setPaymentOpen(false)}
-        onSuccess={() => setPaymentOpen(false)}
-/>
+        storeId={
+          selectedStoreId
+        }
+        onClose={() =>
+          setPaymentOpen(false)
+        }
+        onSuccess={() =>
+          setPaymentOpen(false)
+        }
+      />
 
       {/* CUSTOMER SELECTOR */}
     <POSCustomerModal

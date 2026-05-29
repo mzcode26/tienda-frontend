@@ -28,7 +28,7 @@ export default function SalesPage() {
   return (
     <div className="p-6 space-y-4">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Ventas</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Ventas</h1>
       </div>
 
       <SaleFilters filters={filters} onChange={setFilters} />

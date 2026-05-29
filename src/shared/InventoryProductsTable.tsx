@@ -120,7 +120,7 @@ export function InventoryProductsTable({
                   </td>
 
                   <td className="px-4 py-3">
-                    <span className="font-mono text-xs">
+                    <span className="font-mono text-xs text-gray-500">
                       {item.variant?.sku ?? '—'}
                     </span>
                   </td>
@@ -171,7 +171,7 @@ export function InventoryProductsTable({
                         <>
                           <button
                             onClick={() => onAdjust?.(item)}
-                            className="inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs hover:bg-gray-50"
+                            className="inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs hover:bg-gray-50 text-gray-700"
                           >
                             <Package className="h-3.5 w-3.5" />
                             Ajustar
@@ -179,7 +179,7 @@ export function InventoryProductsTable({
 
                           <button
                             onClick={() => onTransfer?.(item)}
-                            className="inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs hover:bg-gray-50"
+                            className="inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs hover:bg-gray-50 text-gray-700"
                           >
                             <ArrowUpDown className="h-3.5 w-3.5" />
                             Transferir
@@ -187,14 +187,14 @@ export function InventoryProductsTable({
 
                           <button
                             onClick={() => onMovements?.(item)}
-                            className="inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs hover:bg-gray-50"
+                            className="inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs hover:bg-gray-50 text-gray-700"
                           >
                             Movimientos
                           </button>
 
                           <button
                             onClick={() => onSettings?.(item)}
-                            className="inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs hover:bg-gray-50"
+                            className="inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs hover:bg-gray-50 text-gray-700"
                           >
                             <Settings className="h-3.5 w-3.5" />
                           </button>
@@ -203,7 +203,7 @@ export function InventoryProductsTable({
                         <button
                           onClick={() => onAddToSale?.(item)}
                           disabled={quantity <= 0}
-                          className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                          className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
                         >
                           <Plus className="h-3.5 w-3.5" />
                           Agregar
