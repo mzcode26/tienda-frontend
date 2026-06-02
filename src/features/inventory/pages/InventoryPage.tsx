@@ -246,7 +246,6 @@ export default function InventoryPage() {
       storeId: values.storeId,
       variantId: values.variantId,
       quantity: values.quantity,
-      reason: values.reason ?? 'Carga de stock inicial',
       reference: 'STOCK_INICIAL',
     });
 

@@ -37,7 +37,7 @@ export function AdjustStockModal({
       variantId: '',
       type: 'ADD',
       quantity: 0,
-      reason: '',
+      notes: '',
       reference: '',
     },
   });
@@ -51,7 +51,7 @@ export function AdjustStockModal({
         variantId: item.variantId,
         type: 'ADD',
         quantity: 0,
-        reason: '',
+        notes: '',
         reference: '',
       });
     }
@@ -155,13 +155,13 @@ export function AdjustStockModal({
             </label>
             <textarea
               rows={3}
-              {...register('reason')}
+              {...register('notes')}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500"
               placeholder="Motivo del ajuste"
             />
-            {errors.reason && (
+            {errors.notes && (
               <p className="mt-1 text-sm text-red-500">
-                {errors.reason.message}
+                {errors.notes.message}
               </p>
             )}
           </div>

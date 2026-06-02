@@ -92,7 +92,7 @@ export function InitialStockModal({
       variantId: selectedVariantId,
       type: 'SET',
       quantity,
-      reason: 'Carga de stock inicial',
+      notes: 'Carga de stock inicial',
       reference: 'STOCK_INICIAL',
     });
 
