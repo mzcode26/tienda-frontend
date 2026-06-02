@@ -23,7 +23,7 @@ export function RecentSalesTable({ sales, isLoading }: Props) {
   const navigate = useNavigate();
 
   return (
-    <div className="bg-white border rounded-xl p-4">
+    <div className="bg-white border rounded-xl p-4 text-gray-900">
       <div className="flex justify-between items-center mb-4">
         <h3 className="font-semibold text-gray-700">Ventas recientes</h3>
         <button onClick={() => navigate('/sales')}

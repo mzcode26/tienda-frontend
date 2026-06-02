@@ -85,7 +85,7 @@ export function InventoryProductsTable({
     <div className="bg-white rounded-xl border overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b text-gray-600">
+          <thead className="bg-gray-50 border-b text-gray-600 ">
             <tr>
               <th className="px-4 py-3 text-left font-medium">Producto</th>
               <th className="px-4 py-3 text-left font-medium">SKU</th>
@@ -109,7 +109,7 @@ export function InventoryProductsTable({
               const isLowStock = quantity > 0 && quantity <= minStock;
 
               return (
-                <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                <tr key={item.id} className="hover:bg-gray-50 transition-colors text-gray-700 ">
                   <td className="px-4 py-3">
                     <div>
                       <p className="font-medium text-gray-900">{productName}</p>
