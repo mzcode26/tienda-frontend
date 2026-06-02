@@ -44,7 +44,7 @@ export const adjustStockSchema = z.object({
       'La cantidad no puede ser negativa',
     ),
 
-  notes: z
+  reason: z
     .string()
     .trim()
     .max(
