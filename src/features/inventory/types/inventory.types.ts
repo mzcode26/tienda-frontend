@@ -65,7 +65,7 @@ export interface InventoryMovement {
   previousQuantity?: number | null;
   newQuantity?: number | null;
 
-  reason?: string | null;
+  notes?: string | null;
   referenceId?: string | null;
   userId?: string | null;
 
@@ -118,7 +118,7 @@ export interface AdjustStockInput {
   variantId: string;
   type: InventoryAdjustmentType;
   quantity: number;
-  reason?: string;
+  notes?: string;
   reference?: string;
 }
 

@@ -166,7 +166,7 @@ export function MovementsModal({
                       </td>
 
                       <td className="px-4 py-3 text-sm text-gray-600">
-                        {movement.reason ?? '-'}
+                        {movement.notes ?? '-'}
                       </td>
                     </tr>
                   ))}
