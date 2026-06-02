@@ -13,7 +13,7 @@ interface Props {
 export function CustomersTable({ customers, isLoading, onEdit, onDelete, onView, pagination }: Props) {
   if (isLoading) {
     return (
-      <div className="space-y-2">
+      <div className="space-y-2 ">
         {Array.from({ length: 5 }).map((_, i) => (
           <div key={i} className="h-12 bg-gray-100 rounded animate-pulse" />
         ))}
@@ -42,7 +42,7 @@ export function CustomersTable({ customers, isLoading, onEdit, onDelete, onView,
           </thead>
           <tbody className="divide-y divide-gray-100">
             {customers.map((customer) => (
-              <tr key={customer.id} className="hover:bg-gray-50">
+              <tr key={customer.id} className="hover:bg-gray-50 text-gray-700">
                 <td className="px-4 py-3 font-medium">
                   {customer.firstName} {customer.lastName}
                   <div className="text-xs text-gray-400">{formatDate(customer.createdAt)}</div>

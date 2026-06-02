@@ -50,13 +50,13 @@ export function SalesTable({ sales, isLoading, onView, onCancel, pagination }: P
           <thead className="bg-gray-50 text-gray-600 uppercase text-xs">
             <tr>
               {['N° Venta', 'Cliente', 'Items', 'Total', 'Pago', 'Estado', 'Fecha', ''].map((h) => (
-                <th key={h} className="px-4 py-3 text-left">
+                <th key={h} className="px-4 py-3 text-left text-gray-700">
                   {h}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-100 ">
             {sales.map((sale) => {
               const status = statusConfig[sale.status] ?? {
                 label: sale.status,
