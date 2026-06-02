@@ -99,7 +99,7 @@ export const transferStockSchema = z.object({
     .trim()
     .max(
       255,
-      'La observación no puede superar los 255 caracteres',
+      'El motivo no puede superar los 255 caracteres',
     )
     .optional(),
 
