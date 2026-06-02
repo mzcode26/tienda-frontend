@@ -118,7 +118,7 @@ export interface AdjustStockInput {
   variantId: string;
   type: InventoryAdjustmentType;
   quantity: number;
-  notes?: string;
+  reason?: string;
   reference?: string;
 }
 
